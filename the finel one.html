@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الطاقة الشمسية والمواطنة الشاملة | ثانوية هواري محفوظ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090d16',
+                        cardBg: '#131b2e',
+                        borderCol: '#212d4a',
+                        solarGold: '#fbbf24',
+                        ecoGreen: '#10b981',
+                        dangerRed: '#ef4444'
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #090d16;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Pulsing & Flashing Emergency Alarm */
+        @keyframes alarmFlash {
+            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+            50% { background-color: rgba(239, 68, 68, 0.6); border-color: #f87171; box-shadow: 0 0 25px rgba(239, 68, 68, 0.8); }
+        }
+
+        .alarm-active {
+            animation: alarmFlash 0.8s infinite;
+        }
+        
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        #cityCanvas, #physicsCanvas {
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between" dir="rtl">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-cardBg/90 backdrop-blur-md border-b border-borderCol sticky top-0 z-50 px-4 py-3 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-col xl:flex-row items-center justify-between gap-4">
+            <!-- Title & Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-solarGold to-ecoGreen flex items-center justify-center text-darkBg text-xl font-black shadow-lg">
+                    <i class="fa-solid fa-solar-panel"></i>
+                </div>
+               <div class="main-header">
+        <h1>منصة الطاقة والمواطنة الذكية ☀️</h1>
+        <p>مشروع الفيزياء - سنة ثانية ثانوي (شعبة رياضي) | ثانوية هواري محفوظ</p>
+        <div class="programmer-tag">👨‍💻 المبرمج والمطور: دواجي محمد ياسر</div>
+    </div> 
+            
+
+            <!-- Tab Switcher Navigation -->
+            <nav class="flex items-center bg-darkBg/80 p-1.5 rounded-xl border border-borderCol gap-1 w-full xl:w-auto overflow-x-auto">
+                <button onclick="switchTab('game1')" id="nav-game1" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-solarGold to-amber-500 text-darkBg shadow-md whitespace-nowrap">
+                    <i class="fa-solid fa-city"></i>
+                    <span>عمدة المدينة</span>
+                </button>
+                <button onclick="switchTab('game2')" id="nav-game2" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-sun-plant-wilt"></i>
+                    <span>مختبر الزاوية</span>
+                </button>
+                <button onclick="switchTab('game3')" id="nav-game3" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-leaf"></i>
+                    <span>تحدي المواطن</span>
+                </button>
+                <button onclick="switchTab('game4')" id="nav-game4" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>رالي الأسئلة</span>
+                </button>
+                <button onclick="switchTab('game5')" id="nav-game5" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>تركيب الدارة</span>
+                </button>
+                <button onclick="switchTab('game6')" id="nav-game6" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>سباق الكفاءة</span>
+                </button>
+                <button onclick="switchTab('game7')" id="nav-game7" class="tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>المساعد الذكي</span>
+                </button>
+            </nav>
+
+            <!-- Sound Toggle -->
+            <div class="flex items-center gap-2">
+                <button id="audioToggle" onclick="toggleAudio()" class="p-2.5 rounded-lg bg-cardBg border border-borderCol text-slate-300 hover:text-solarGold transition-all" title="كتم/تشغيل الصوت">
+                    <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ALARM BANNER -->
+    <div id="emergencyBanner" class="hidden w-full bg-red-600/90 text-white font-bold py-2 text-center text-sm md:text-base tracking-wider alarm-active z-40 transition-all flex items-center justify-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation text-xl animate-bounce"></i>
+        <span>تحذير طوارئ: انخفاض الطاقة النظيفة وارتفاع الانبعاثات! اتخذ قراراً مواطنياً عاجلاً!</span>
+        <i class="fa-solid fa-triangle-exclamation text-xl animate-bounce"></i>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-grow">
+
+        <!-- ========================================== -->
+        <!-- GAME 1: SUSTAINABLE CITY SIMULATOR        -->
+        <!-- ========================================== -->
+        <section id="game1-section" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-cardBg p-4 rounded-xl border border-borderCol flex items-center gap-4">
+                    <div class="p-3 bg-amber-500/10 text-solarGold rounded-lg text-2xl"><i class="fa-solid fa-coins"></i></div>
+                    <div>
+                        <div class="text-xs text-slate-400">ميزانية المدينة</div>
+                        <div class="text-xl font-black text-white" id="g1-budget">12,000 $</div>
+                    </div>
+                </div>
+                <div class="bg-cardBg p-4 rounded-xl border border-borderCol flex items-center gap-4">
+                    <div class="p-3 bg-emerald-500/10 text-ecoGreen rounded-lg text-2xl"><i class="fa-solid fa-solar-panel"></i></div>
+                    <div>
+                        <div class="text-xs text-slate-400">نسبة الطاقة الشمسية</div>
+                        <div class="text-xl font-black text-ecoGreen" id="g1-energy">20%</div>
+                    </div>
+                </div>
+                <div class="bg-cardBg p-4 rounded-xl border border-borderCol flex items-center gap-4">
+                    <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg text-2xl"><i class="fa-solid fa-people-group"></i></div>
+                    <div>
+                        <div class="text-xs text-slate-400">وعي المواطنين</div>
+                        <div class="text-xl font-black text-blue-400" id="g1-citizenship">35%</div>
+                    </div>
+                </div>
+                <div class="bg-cardBg p-4 rounded-xl border border-borderCol flex items-center gap-4">
+                    <div class="p-3 bg-red-500/10 text-dangerRed rounded-lg text-2xl"><i class="fa-solid fa-smog"></i></div>
+                    <div>
+                        <div class="text-xs text-slate-400">البصمة الكربونية</div>
+                        <div class="text-xl font-black text-dangerRed" id="g1-carbon">85 PPM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-7 bg-cardBg border border-borderCol rounded-2xl p-4 flex flex-col gap-3 shadow-2xl relative overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-borderCol/50 pb-2">
+                        <span class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-eye text-solarGold"></i> المعاينة البصرية المباشرة للمدينة
+                        </span>
+                        <span id="cityStateBadge" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">مدينة تقليدية ملوثة</span>
+                    </div>
+                    <div class="relative w-full aspect-video bg-slate-950 rounded-xl overflow-hidden border border-borderCol">
+                        <canvas id="cityCanvas" class="w-full h-full block"></canvas>
+                        <div id="canvasDangerOverlay" class="absolute inset-0 pointer-events-none transition-all duration-300"></div>
+                    </div>
+                    <div class="grid grid-cols-3 text-center text-xs text-slate-400 bg-darkBg/60 p-2 rounded-lg border border-borderCol/40">
+                        <div class="flex items-center justify-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> ألواح شمسية</div>
+                        <div class="flex items-center justify-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> مساحات خضراء</div>
+                        <div class="flex items-center justify-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> انبعاثات</div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-cardBg border border-borderCol rounded-2xl p-5 flex flex-col justify-between shadow-xl min-h-[420px]">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-solarGold tracking-wider uppercase" id="g1-stageNum">المرحلة 1 من 3</span>
+                            <span class="text-xs text-slate-400">قرارات رئيس البلدية والمواطنين</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2" id="g1-title">جارٍ تحميل التحدي...</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6" id="g1-desc">...</p>
+                        <div class="space-y-3" id="g1-choices"></div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-borderCol/60 flex items-center justify-between">
+                        <button onclick="resetGame1()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-all">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة المحاكاة
+                        </button>
+                        <span class="text-xs text-slate-500" id="g1-statusInfo">اتخذ قرارك لرؤية التغير في المدينة</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 2: SOLAR PANEL PHYSICS LAB            -->
+        <!-- ========================================== -->
+        <section id="game2-section" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-2xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-borderCol pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-sun text-solarGold text-3xl"></i> مختبر فيزياء الألواح الشمسية والإشعاع
+                        </h2>
+                        <p class="text-slate-400 text-sm mt-1">تحدي ضبط زاوية الإمالة ($\theta$) لحساب القدرة الكهرومائية الشمسية العظمى: $P = P_{max} \cdot \cos(\theta)$</p>
+                    </div>
+                    <div class="bg-darkBg px-4 py-2 rounded-xl border border-borderCol flex items-center gap-3">
+                        <span class="text-xs text-slate-400">الكفاءة:</span>
+                        <span class="text-xl font-black text-solarGold" id="g2-effVal">98.5%</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 space-y-5 bg-darkBg/60 p-5 rounded-xl border border-borderCol">
+                        <div>
+                            <div class="flex justify-between text-sm font-bold mb-2">
+                                <label for="sunAngle" class="text-slate-300">موضع الشمس في السماء:</label>
+                                <span class="text-solarGold font-mono" id="sunAngleText">45°</span>
+                            </div>
+                            <input type="range" id="sunAngle" min="0" max="180" value="45" class="w-full accent-solarGold bg-slate-800 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm font-bold mb-2">
+                                <label for="panelTilt" class="text-slate-300">زاوية إمالة اللوح الشمسي:</label>
+                                <span class="text-ecoGreen font-mono" id="panelTiltText">35°</span>
+                            </div>
+                            <input type="range" id="panelTilt" min="0" max="90" value="35" class="w-full accent-ecoGreen bg-slate-800 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm font-bold mb-2">
+                                <label for="solarIntensity" class="text-slate-300">شدة الإشعاع ($W/m^2$):</label>
+                                <span class="text-blue-400 font-mono" id="solarIntensityText">1000 W/m²</span>
+                            </div>
+                            <input type="range" id="solarIntensity" min="200" max="1200" step="50" value="1000" class="w-full accent-blue-500 bg-slate-800 rounded-lg cursor-pointer">
+                        </div>
+
+                        <div class="bg-cardBg p-4 rounded-xl border border-borderCol space-y-3 mt-4">
+                            <div class="text-xs font-bold text-slate-400 border-b border-borderCol/60 pb-2">الحسابات الفيزيائية اللحظية:</div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-300">زاوية السقوط ($\theta$):</span>
+                                <span class="font-mono text-white font-bold" id="g2-calcTheta">10°</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-300">القدرة الكهربائية ($P$):</span>
+                                <span class="font-mono text-2xl font-black text-solarGold" id="g2-calcPower">492.5 W</span>
+                            </div>
+                            <div class="text-xs text-emerald-400 bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-800/40" id="g2-physicsAdvice">الزاوية ممتازة لالتقاط أعلى كمية من الأشعة!</div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-slate-950 p-4 rounded-xl border border-borderCol flex flex-col justify-between relative min-h-[350px]">
+                        <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+                            <span><i class="fa-solid fa-microscope text-solarGold"></i> محاكاة خطوط الأشعة الضوئية</span>
+                            <span class="text-solarGold font-mono">السطح = 2.0 m²</span>
+                        </div>
+                        <canvas id="physicsCanvas" class="w-full h-80 block"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 3: CITIZEN ECO QUIZ & CALCULATOR      -->
+        <!-- ========================================== -->
+        <section id="game3-section" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-borderCol pb-4 mb-5">
+                            <div>
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-graduation-cap text-solarGold"></i> تحدي المواطنة والمعرفة الفيزيائية
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">اختبر معلوماتك حول المبدأ الكهروضوئية وترشيد الطاقة</p>
+                            </div>
+                            <span class="bg-solarGold/10 text-solarGold px-3 py-1 rounded-full text-xs font-bold border border-solarGold/30" id="quizScoreBadge">النقاط: 0</span>
+                        </div>
+                        <div id="quizContainer">
+                            <h3 class="text-lg font-bold text-white mb-3" id="quizQuestion">جارٍ تحميل الأسئلة...</h3>
+                            <div class="space-y-3 mt-4" id="quizAnswers"></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-borderCol flex justify-between items-center">
+                        <span class="text-xs text-slate-400" id="quizProgress">السؤال 1 من 3</span>
+                        <button onclick="nextQuizQuestion()" id="quizNextBtn" class="hidden bg-gradient-to-r from-solarGold to-amber-500 text-darkBg px-5 py-2 rounded-xl text-sm font-bold shadow-lg hover:brightness-110 transition-all">
+                            السؤال التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2 border-b border-borderCol pb-4 mb-4">
+                            <i class="fa-solid fa-calculator text-ecoGreen"></i> حاسبة المواطن للطاقة المنزلية
+                        </h2>
+                        <div class="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                            <label class="flex items-center justify-between p-3 bg-darkBg/60 rounded-xl border border-borderCol cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="device-calc w-4 h-4 accent-ecoGreen" data-power="150" checked onchange="calcCitizenSolar()">
+                                    <span class="text-sm text-slate-200">تلفاز LED</span>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">150 W</span>
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-darkBg/60 rounded-xl border border-borderCol cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="device-calc w-4 h-4 accent-ecoGreen" data-power="350" checked onchange="calcCitizenSolar()">
+                                    <span class="text-sm text-slate-200">ثلاجة منزلية</span>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">350 W</span>
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-darkBg/60 rounded-xl border border-borderCol cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="device-calc w-4 h-4 accent-ecoGreen" data-power="1500" onchange="calcCitizenSolar()">
+                                    <span class="text-sm text-slate-200">مكيف هواء</span>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">1500 W</span>
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-darkBg/60 rounded-xl border border-borderCol cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" class="device-calc w-4 h-4 accent-ecoGreen" data-power="100" checked onchange="calcCitizenSolar()">
+                                    <span class="text-sm text-slate-200">10 مصابيح اقتصادية</span>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">100 W</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-darkBg border border-borderCol rounded-xl space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>إجمالي القدرة:</span>
+                            <span class="font-mono text-white font-bold" id="citizenTotalPower">600 W</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>الألواح اللازمة (300W):</span>
+                            <span class="font-mono text-solarGold font-bold" id="citizenPanelsCount">2 ألواح</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>تخفيض الانبعاثات:</span>
+                            <span class="font-mono text-ecoGreen font-bold" id="citizenCo2Saved">450 kg CO2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 4: SOLAR TRIVIA RALLY                 -->
+        <!-- ========================================== -->
+        <section id="game4-section" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-2xl max-w-3xl mx-auto">
+                <div class="flex items-center justify-between border-b border-borderCol pb-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-trophy text-solarGold"></i> رالي أسئلة الطاقة الشمسية والمواطنة
+                        </h2>
+                        <p class="text-slate-400 text-sm mt-1">تحدي الوقت والإجابة السريعة لجمع أعلى نقاط في الفيزياء البيئية</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-darkBg px-3 py-1.5 rounded-xl border border-borderCol text-xs">
+                            الوقت: <span id="rallyTimer" class="font-mono text-solarGold font-bold text-sm">30</span>s
+                        </div>
+                        <div class="bg-darkBg px-3 py-1.5 rounded-xl border border-borderCol text-xs">
+                            النقاط: <span id="rallyScore" class="font-mono text-ecoGreen font-bold text-sm">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rallyGameArea" class="space-y-6">
+                    <div class="bg-darkBg p-6 rounded-xl border border-borderCol text-center">
+                        <span class="text-xs text-solarGold uppercase tracking-widest font-bold" id="rallyStepIndicator">سؤال 1 / 4</span>
+                        <h3 class="text-xl font-bold text-white mt-2 mb-6" id="rallyQuestionText">جارٍ تحميل الرالي...</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="rallyOptionsGrid"></div>
+                    </div>
+                </div>
+
+                <div id="rallyEndArea" class="hidden text-center py-8 space-y-4">
+                    <i class="fa-solid fa-award text-6xl text-solarGold"></i>
+                    <h3 class="text-2xl font-bold text-white">انتهى رالي الطاقة الشمسية!</h3>
+                    <p class="text-slate-300 text-sm" id="rallyFinalMessage">لقد أثبتّ جدارة استثنائية في فهم طاقة المستقبل.</p>
+                    <button onclick="startRallyGame()" class="bg-gradient-to-r from-solarGold to-amber-500 text-darkBg font-black px-6 py-3 rounded-xl shadow-lg hover:brightness-110 transition-all">
+                        <i class="fa-solid fa-rotate-right ml-2"></i> إعادة الرالي
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 5: CIRCUIT BUILDER (NEW)              -->
+        <!-- ========================================== -->
+        <section id="game5-section" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-2xl max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-borderCol pb-4">
+                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                        <i class="fa-solid fa-network-wired text-solarGold"></i> تحدي تركيبة الدارة الشمسية (Solar Circuit Builder)
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">اختر المكون الفيزيائي الصحيح بالتسلسل الهندسي لبناء منزل يعتمد كلياً على الطاقة الشمسية!</p>
+                </div>
+
+                <!-- Circuit Visual Pipeline -->
+                <div class="bg-darkBg p-4 rounded-xl border border-borderCol flex items-center justify-between overflow-x-auto gap-2">
+                    <div id="circStep1" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500">
+                        <i class="fa-solid fa-solar-panel text-2xl"></i>
+                        <span class="text-xs font-bold">1. المصدر</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                    <div id="circStep2" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500">
+                        <i class="fa-solid fa-microchip text-2xl"></i>
+                        <span class="text-xs font-bold">2. التنسيق</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                    <div id="circStep3" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500">
+                        <i class="fa-solid fa-car-battery text-2xl"></i>
+                        <span class="text-xs font-bold">3. التخزين</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                    <div id="circStep4" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500">
+                        <i class="fa-solid fa-bolt text-2xl"></i>
+                        <span class="text-xs font-bold">4. التحويل</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                    <div id="circStep5" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500">
+                        <i class="fa-solid fa-house-lightbulb text-2xl"></i>
+                        <span class="text-xs font-bold">5. المستهلك</span>
+                    </div>
+                </div>
+
+                <div id="circuitGameArea" class="space-y-4">
+                    <div class="text-sm font-bold text-solarGold" id="circQuestionText">الخطوة 1: اختر المكون الذي يلتقط الفوتونات الضوئية ويحرك الإلكترونات:</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="circOptionsContainer"></div>
+                </div>
+
+                <div id="circuitVictoryArea" class="hidden text-center py-6 space-y-4 bg-emerald-950/30 border border-emerald-600/40 rounded-xl p-6">
+                    <i class="fa-solid fa-circle-check text-5xl text-ecoGreen"></i>
+                    <h3 class="text-2xl font-bold text-white">اكتملت الدارة الشمسية بنجاح!</h3>
+                    <p class="text-slate-300 text-sm">أصبحت الدارة تغذي المنزل بالطاقة النظيفة 100% دون الحاجة للانبعاثات الكربونية.</p>
+                    <button onclick="resetCircuitGame()" class="bg-gradient-to-r from-ecoGreen to-emerald-600 text-darkBg font-black px-6 py-3 rounded-xl shadow-lg hover:brightness-110 transition-all">
+                        <i class="fa-solid fa-rotate-right ml-2"></i> تركيب دارة جديدة
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 6: PANEL CLEAN & EFFICIENCY RACE (NEW)-->
+        <!-- ========================================== -->
+        <section id="game6-section" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-2xl max-w-3xl mx-auto space-y-6">
+                <div class="flex items-center justify-between border-b border-borderCol pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-gauge-high text-solarGold"></i> سباق كفاءة الألواح الشمسية (Panel Clean Race)
+                        </h2>
+                        <p class="text-slate-400 text-sm mt-1">ازل الغبار وعوائق الظل بالضغط السريع لتوليد أكبر عدد من الكيلوواط قبل انتهاء الوقت!</p>
+                    </div>
+                    <div class="bg-darkBg px-4 py-2 rounded-xl border border-borderCol text-center">
+                        <div class="text-xs text-slate-400">الوقت</div>
+                        <div id="effTimerText" class="text-xl font-mono font-bold text-solarGold">20s</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-darkBg p-4 rounded-xl border border-borderCol">
+                        <div class="text-xs text-slate-400">إجمالي الطاقة المولدة</div>
+                        <div id="effPowerOutput" class="text-3xl font-black text-ecoGreen mt-1">0 kWh</div>
+                    </div>
+                    <div class="bg-darkBg p-4 rounded-xl border border-borderCol">
+                        <div class="text-xs text-slate-400">نسبة نظافة اللوح الشمسي</div>
+                        <div id="effCleanPct" class="text-3xl font-black text-solarGold mt-1">20%</div>
+                    </div>
+                </div>
+
+                <div id="effInteractiveBox" class="bg-slate-950 p-8 rounded-2xl border border-borderCol text-center space-y-4">
+                    <div class="relative w-48 h-32 mx-auto bg-slate-900 border-2 border-solarGold rounded-lg flex items-center justify-center overflow-hidden shadow-2xl">
+                        <i class="fa-solid fa-solar-panel text-6xl text-slate-600 transition-all duration-300" id="effPanelIcon"></i>
+                        <div id="effDustOverlay" class="absolute inset-0 bg-amber-900/70 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-amber-200">
+                            غبار وأتربة تتطلب تنظيف مواطني!
+                        </div>
+                    </div>
+                    <button onclick="cleanPanelAction()" class="w-full max-w-sm mx-auto bg-gradient-to-r from-solarGold to-amber-500 text-darkBg font-black py-4 rounded-xl text-lg shadow-xl hover:brightness-110 active:scale-95 transition-all block">
+                        <i class="fa-solid fa-hand-sparkles ml-2"></i> تنظيف وزيادة التوليد (انقر بسرعة!)
+                    </button>
+                </div>
+
+                <div id="effEndGameBox" class="hidden text-center py-6 space-y-4 bg-darkBg border border-borderCol rounded-xl p-6">
+                    <h3 class="text-2xl font-bold text-white">انتهى السباق الطاقوي!</h3>
+                    <p id="effFinalSummary" class="text-slate-300 text-sm">تم جمع 0 kWh بفضل كفاءتك وتدخلاتك الفورية.</p>
+                    <button onclick="startEfficiencyRace()" class="bg-gradient-to-r from-solarGold to-ecoGreen text-darkBg font-black px-6 py-3 rounded-xl shadow-lg hover:brightness-110 transition-all">
+                        <i class="fa-solid fa-rotate-right ml-2"></i> بدء سباق جديد
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 7: AI SOLAR EXPERT Q&A                -->
+        <!-- ========================================== -->
+        <section id="game7-section" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-2xl max-w-4xl mx-auto flex flex-col gap-6">
+                <div class="border-b border-borderCol pb-4">
+                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                        <i class="fa-solid fa-robot text-solarGold"></i> المساعد الذكي للطاقة الشمسية والمواطنة
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">اسأل أي شيء حول الطاقة الشمسية، الألواح، زاوية السقوط، أو المواطنة البيئية وسيجيبك الخبير فوراً!</p>
+                </div>
+
+                <!-- Preset Questions Pills -->
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-xs text-slate-400 self-center ml-2">أسئلة شائعة:</span>
+                    <button onclick="askPreset('كيف تعمل الألواح الشمسية؟')" class="text-xs bg-darkBg hover:bg-slate-800 border border-borderCol px-3 py-1.5 rounded-lg text-slate-300 transition-all">كيف تعمل الألواح الشمسية؟</button>
+                    <button onclick="askPreset('ما علاقة الطاقة بالمواطنة؟')" class="text-xs bg-darkBg hover:bg-slate-800 border border-borderCol px-3 py-1.5 rounded-lg text-slate-300 transition-all">ما علاقة الطاقة بالمواطنة؟</button>
+                    <button onclick="askPreset('أفضل زاوية إمالة')" class="text-xs bg-darkBg hover:bg-slate-800 border border-borderCol px-3 py-1.5 rounded-lg text-slate-300 transition-all">ما هي أفضل زاوية إمالة؟</button>
+                    <button onclick="askPreset('تخزين الطاقة والبطاريات')" class="text-xs bg-darkBg hover:bg-slate-800 border border-borderCol px-3 py-1.5 rounded-lg text-slate-300 transition-all">كيف يتم تخزين الطاقة؟</button>
+                </div>
+
+                <!-- Chat / Q&A Search Box -->
+                <div class="flex gap-2">
+                    <input type="text" id="aiQueryInput" placeholder="اكتب سؤالك هنا (مثلاً: ما هي الظاهرة الكهروضوئية؟)..." class="flex-grow bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-white text-sm focus:border-solarGold outline-none transition-all">
+                    <button onclick="submitAiQuery()" class="bg-gradient-to-r from-solarGold to-amber-500 text-darkBg font-black px-6 py-3 rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال
+                    </button>
+                </div>
+
+                <!-- AI Response Display Box -->
+                <div class="bg-darkBg/80 border border-borderCol rounded-xl p-5 min-h-[180px] flex flex-col justify-center relative">
+                    <div id="aiLoadingIndicator" class="hidden absolute inset-0 bg-darkBg/90 flex items-center justify-center gap-2 text-solarGold text-sm font-bold">
+                        <i class="fa-solid fa-spinner animate-spin"></i> جاري استشارة قاعدة المعرفة الفيزيائية...
+                    </div>
+                    <div id="aiResponseContent" class="text-slate-300 text-sm leading-relaxed">
+                        <div class="text-slate-500 text-center italic">مرحباً! أنا مساعدك الذكي في مشروع الفيزياء. اختر سؤالاً مقترحاً أو اكتب استفسارك في الأعلى لنبدأ الحوار.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-cardBg border-t border-borderCol py-4 px-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <div>إعداد وتصميم المشروع الرقمي: **الطاقة والمواطنة البيئية** | سنة ثانية ثانوي</div>
+            <div class="flex items-center gap-4 text-slate-400">
+                <span><i class="fa-solid fa-atom text-solarGold"></i> فيزياء وتكنولوجيا</span>
+                <span><i class="fa-solid fa-school text-ecoGreen"></i> ثانوية هواري محفوظ</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC & ENGINES -->
+    <script>
+        /* ================= AUDIO ENGINE ================= */
+        let audioCtx = null;
+        let isAudioMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBeep(freq = 440, type = 'sine', duration = 0.15) {
+            if (isAudioMuted) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const btn = document.getElementById('audioIcon');
+            if (isAudioMuted) {
+                btn.className = 'fa-solid fa-volume-xmark text-red-400';
+            } else {
+                btn.className = 'fa-solid fa-volume-high text-slate-300';
+                playBeep(600, 'sine', 0.1);
+            }
+        }
+
+        function triggerAlarmSound(enable) {
+            const banner = document.getElementById('emergencyBanner');
+            const dangerOverlay = document.getElementById('canvasDangerOverlay');
+            if (enable) {
+                banner.classList.remove('hidden');
+                if (dangerOverlay) dangerOverlay.classList.add('bg-red-600/20');
+                if (!isAudioMuted) playBeep(880, 'sawtooth', 0.4);
+            } else {
+                banner.classList.add('hidden');
+                if (dangerOverlay) dangerOverlay.classList.remove('bg-red-600/20');
+            }
+        }
+
+        /* ================= NAVIGATION ================= */
+        function switchTab(tabId) {
+            playBeep(520, 'sine', 0.1);
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold text-slate-300 hover:text-white hover:bg-cardBg transition-all flex items-center gap-2 whitespace-nowrap';
+            });
+            document.getElementById(tabId + '-section').classList.remove('hidden');
+            const activeBtn = document.getElementById('nav-' + tabId);
+            activeBtn.className = 'tab-btn px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-solarGold to-amber-500 text-darkBg shadow-md whitespace-nowrap';
+
+            if (tabId === 'game1') drawCityCanvas();
+            if (tabId === 'game2') drawPhysicsCanvas();
+            if (tabId === 'game4') startRallyGame();
+            if (tabId === 'game5') loadCircuitStep();
+            if (tabId === 'game6') startEfficiencyRace();
+        }
+
+        /* ================= GAME 1: CITY SIMULATOR ================= */
+        let g1State = { budget: 12000, energy: 20, citizenship: 35, carbon: 85, step: 0 };
+        const g1Scenarios = [
+            {
+                title: "المرحلة 1: أزمة إنارة الشوارع والانبعاثات",
+                desc: "تعتمد المدينة حالياً على محطة فحم قديمة تنتج أدخنة ملوثة. كيف ستبدأ التغيير كعمدة ومواطن مسئول؟",
+                badge: "مدينة ملوثة بالدخان",
+                choices: [
+                    { text: "تركيب ألواح شمسية فوق أسقف المباني وتحويل الشوارع إلى إنارة LED ذكية.", effect: { budget: -3000, energy: +30, citizenship: +20, carbon: -30 }, advice: "قرار مواطني ممتاز! تم تخفيض الانبعاثات." },
+                    { text: "فرض ساعات قطع طاقة إجبارية دون الاستثمار في الألواح.", effect: { budget: 0, energy: +5, citizenship: -20, carbon: -5 }, advice: "تسبب في تذمر المواطنين." }
+                ]
+            },
+            {
+                title: "المرحلة 2: موجة الحر الشديدة وضغط الأجهزة",
+                desc: "ارتفعت درجات الحرارة مفاجأة وزاد استخدام المكيفات الكهربائية بشكل هائل.",
+                badge: "أزمة طاقة حادة",
+                choices: [
+                    { text: "تفعيل نظام التضامن المواطني وتخفيض المكيفات درجة واحدة.", effect: { budget: -1500, energy: +25, citizenship: +25, carbon: -20 }, advice: "المواطنة الحقيقية تجلت في التضامن!" },
+                    { text: "تشغيل مولدات الديزل الاحتياطية الضخمة.", effect: { budget: -4000, energy: -10, citizenship: -10, carbon: +25 }, advice: "المولدات حرقت الميزانية وزادت الدخان الأسود!" }
+                ]
+            },
+            {
+                title: "المرحلة 3: مشروع الميكرو-شبكة للمدارس الخضراء",
+                desc: "اقترح تلاميذ ثانوية هواري محفوظ بناء ميكرو-شبكة طاقة شمسية لربط المدارس والمستشفيات.",
+                badge: "التحول نحو الاستدامة",
+                choices: [
+                    { text: "دعم مشروع الطلاب، تشجير المدينة، وتركيب ألواح شمسية مضاعفة.", effect: { budget: -3500, energy: +25, citizenship: +20, carbon: -30 }, advice: "أصبحت المدينة نموذجاً وطنياً للطاقة المستدامة!" },
+                    { text: "تأجيل المشروع لعدم المخاطرة بالميزانية.", effect: { budget: 0, energy: -5, citizenship: -15, carbon: +5 }, advice: "ضاعت فرصة ذهبية لتعليم الشباب." }
+                ]
+            }
+        ];
+
+        function updateG1UI() {
+            document.getElementById('g1-budget').textContent = g1State.budget.toLocaleString() + ' $';
+            document.getElementById('g1-energy').textContent = g1State.energy + '%';
+            document.getElementById('g1-citizenship').textContent = g1State.citizenship + '%';
+            document.getElementById('g1-carbon').textContent = g1State.carbon + ' PPM';
+            if (g1State.energy < 30 || g1State.carbon > 70) triggerAlarmSound(true);
+            else triggerAlarmSound(false);
+            drawCityCanvas();
+        }
+
+        function loadG1Scenario() {
+            if (g1State.step >= g1Scenarios.length) {
+                showG1Victory();
+                return;
+            }
+            const current = g1Scenarios[g1State.step];
+            document.getElementById('g1-stageNum').textContent = `المرحلة ${g1State.step + 1} من ${g1Scenarios.length}`;
+            document.getElementById('g1-title').textContent = current.title;
+            document.getElementById('g1-desc').textContent = current.desc;
+            document.getElementById('cityStateBadge').textContent = current.badge;
+            const choicesBox = document.getElementById('g1-choices');
+            choicesBox.innerHTML = '';
+            current.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-right bg-darkBg/80 hover:bg-slate-800 border border-borderCol hover:border-solarGold p-4 rounded-xl transition-all flex flex-col gap-1 group shadow-md';
+                btn.innerHTML = `<span class="text-sm font-bold text-white group-hover:text-solarGold flex items-center justify-between"><span>الخيار ${idx + 1}: ${choice.text}</span><i class="fa-solid fa-chevron-left text-xs text-slate-500"></i></span>`;
+                btn.onclick = () => makeG1Choice(choice);
+                choicesBox.appendChild(btn);
+            });
+            updateG1UI();
+        }
+
+        function makeG1Choice(choice) {
+            playBeep(650, 'sine', 0.15);
+            g1State.budget += choice.effect.budget;
+            g1State.energy = Math.min(100, Math.max(0, g1State.energy + choice.effect.energy));
+            g1State.citizenship = Math.min(100, Math.max(0, g1State.citizenship + choice.effect.citizenship));
+            g1State.carbon = Math.min(150, Math.max(10, g1State.carbon + choice.effect.carbon));
+            document.getElementById('g1-statusInfo').textContent = choice.advice;
+            g1State.step++;
+            loadG1Scenario();
+        }
+
+        function showG1Victory() {
+            triggerAlarmSound(false);
+            const choicesBox = document.getElementById('g1-choices');
+            document.getElementById('g1-stageNum').textContent = 'النتيجة النهائية';
+            document.getElementById('g1-title').textContent = 'مدينة خضراء نموذجية 🌟';
+            document.getElementById('g1-desc').textContent = 'تهانينا! نجحت في تحويل مدينتك إلى مدينة ذكية مستدامة تعتمد بنسبة عالية على الطاقة الشمسية.';
+            choicesBox.innerHTML = `<button onclick="resetGame1()" class="w-full bg-gradient-to-r from-solarGold to-ecoGreen text-darkBg font-black py-3 rounded-xl shadow-lg hover:brightness-110 transition-all text-center"><i class="fa-solid fa-rotate-right ml-2"></i> إبدأ محاكاة جديدة</button>`;
+        }
+
+        function resetGame1() {
+            g1State = { budget: 12000, energy: 20, citizenship: 35, carbon: 85, step: 0 };
+            document.getElementById('g1-statusInfo').textContent = 'اتخذ قرارك لرؤية التغير في المدينة';
+            loadG1Scenario();
+        }
+
+        function drawCityCanvas() {
+            const canvas = document.getElementById('cityCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth || 600;
+            canvas.height = canvas.offsetHeight || 340;
+            const w = canvas.width, h = canvas.height;
+            const isGreen = g1State.energy > 50;
+
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, h * 0.7);
+            if (isGreen) { skyGradient.addColorStop(0, '#0284c7'); skyGradient.addColorStop(1, '#bae6fd'); }
+            else { skyGradient.addColorStop(0, '#1e1b4b'); skyGradient.addColorStop(1, '#475569'); }
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.beginPath();
+            ctx.arc(w * 0.8, h * 0.25, isGreen ? 35 : 22, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = isGreen ? 30 : 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            if (g1State.carbon > 50) {
+                ctx.fillStyle = 'rgba(75, 85, 99, 0.5)';
+                ctx.beginPath();
+                ctx.arc(w * 0.15, h * 0.2, 25, 0, Math.PI * 2);
+                ctx.arc(w * 0.22, h * 0.15, 35, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = isGreen ? '#065f46' : '#1f2937';
+            ctx.fillRect(0, h * 0.75, w, h * 0.25);
+
+            const buildings = [
+                { x: w * 0.08, w: w * 0.18, h: h * 0.45, color: '#334155' },
+                { x: w * 0.30, w: w * 0.22, h: h * 0.55, color: '#1e293b' },
+                { x: w * 0.56, w: w * 0.16, h: h * 0.38, color: '#334155' },
+                { x: w * 0.76, w: w * 0.18, h: h * 0.48, color: '#1e293b' }
+            ];
+
+            buildings.forEach(b => {
+                ctx.fillStyle = b.color;
+                ctx.fillRect(b.x, h * 0.75 - b.h, b.w, b.h);
+                ctx.fillStyle = isGreen ? '#fef08a' : '#94a3b8';
+                for (let wx = b.x + 10; wx < b.x + b.w - 15; wx += 20) {
+                    for (let wy = h * 0.75 - b.h + 15; wy < h * 0.75 - 20; wy += 30) {
+                        ctx.fillRect(wx, wy, 10, 15);
+                    }
+                }
+                if (g1State.energy >= 30) {
+                    ctx.fillStyle = '#0284c7';
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.fillRect(b.x + 5, h * 0.75 - b.h - 10, b.w - 10, 10);
+                    ctx.strokeRect(b.x + 5, h * 0.75 - b.h - 10, b.w - 10, 10);
+                }
+            });
+        }
+
+        /* ================= GAME 2: PHYSICS LAB ================= */
+        function drawPhysicsCanvas() {
+            const canvas = document.getElementById('physicsCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth || 500;
+            canvas.height = canvas.offsetHeight || 300;
+            const w = canvas.width, h = canvas.height;
+
+            const sunAngleDeg = parseFloat(document.getElementById('sunAngle').value);
+            const panelTiltDeg = parseFloat(document.getElementById('panelTilt').value);
+            const intensity = parseFloat(document.getElementById('solarIntensity').value);
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, h - 40);
+            ctx.lineTo(w - 30, h - 40);
+            ctx.stroke();
+
+            const sunRad = (sunAngleDeg * Math.PI) / 180;
+            const sunX = w / 2 - Math.cos(sunRad) * (w * 0.38);
+            const sunY = (h - 50) - Math.sin(sunRad) * (h * 0.65);
+
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 20, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            const panelX = w / 2, panelY = h - 40, panelLength = 120;
+            const tiltRad = (panelTiltDeg * Math.PI) / 180;
+            const pX1 = panelX - (panelLength / 2) * Math.cos(tiltRad);
+            const pY1 = panelY - (panelLength / 2) * Math.sin(tiltRad);
+            const pX2 = panelX + (panelLength / 2) * Math.cos(tiltRad);
+            const pY2 = panelY + (panelLength / 2) * Math.sin(tiltRad);
+
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(pX1, pY1);
+            ctx.lineTo(pX2, pY2);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            for (let i = -3; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(sunX, sunY);
+                ctx.lineTo(panelX + (i * 15), panelY - 10);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+
+            const theta = Math.abs(sunAngleDeg - (90 - panelTiltDeg));
+            const thetaRad = (theta * Math.PI) / 180;
+            const maxPowerPerSqM = (intensity * 0.25);
+            const calculatedPower = Math.max(0, maxPowerPerSqM * 2.0 * Math.cos(thetaRad));
+            const efficiency = Math.max(0, Math.cos(thetaRad) * 100);
+
+            document.getElementById('sunAngleText').textContent = sunAngleDeg + '°';
+            document.getElementById('panelTiltText').textContent = panelTiltDeg + '°';
+            document.getElementById('solarIntensityText').textContent = intensity + ' W/m²';
+            document.getElementById('g2-calcTheta').textContent = Math.round(theta) + '°';
+            document.getElementById('g2-calcPower').textContent = calculatedPower.toFixed(1) + ' W';
+            document.getElementById('g2-effVal').textContent = efficiency.toFixed(1) + '%';
+        }
+
+        document.getElementById('sunAngle')?.addEventListener('input', drawPhysicsCanvas);
+        document.getElementById('panelTilt')?.addEventListener('input', drawPhysicsCanvas);
+        document.getElementById('solarIntensity')?.addEventListener('input', drawPhysicsCanvas);
+
+        /* ================= GAME 3: ECO QUIZ & CALCULATOR ================= */
+        const quizQuestions = [
+            { q: "ما هو التفسير الفيزيائي لعمل الألواح الشمسية الكهروضوئية؟", a: ["تحويل الإشعاع الضوئي مباشرة إلى طاقة كهربائية بفضل الظاهرة الكهروضوئية.", "تسخين الماء فقط.", "امتصاص الحرارة وتخزينها."], correct: 0 },
+            { q: "كيف تجسد الألواح الشمسية مفهوم المواطنة البيئية؟", a: ["من خلال تقليل الانبعاثات الكربونية والحفاظ على الموارد.", "لأنها تعفي تماماً من الضرائب.", "لأنها جميلة الشكل."], correct: 0 },
+            { q: "متى تكون قدرة اللوح الشمسي في قيمتها العظمى؟", a: ["عندما تكون الأشعة عمودية تماماً على السطح.", "عند الغروب.", "عند الميل بـ 90 درجة."], correct: 0 }
+        ];
+        let quizState = { current: 0, score: 0 };
+
+        function loadQuiz() {
+            if (quizState.current >= quizQuestions.length) {
+                document.getElementById('quizContainer').innerHTML = `<div class="text-center py-6 space-y-3"><i class="fa-solid fa-award text-4xl text-solarGold"></i><h3 class="text-xl font-bold text-white">أحسنت! أكملت الاختبار بنجاح</h3><p class="text-sm text-slate-300">النقاط: <span class="text-solarGold font-bold">${quizState.score}</span></p></div>`;
+                document.getElementById('quizNextBtn').classList.add('hidden');
+                return;
+            }
+            const q = quizQuestions[quizState.current];
+            document.getElementById('quizQuestion').textContent = q.q;
+            document.getElementById('quizProgress').textContent = `السؤال ${quizState.current + 1} من ${quizQuestions.length}`;
+            const answersBox = document.getElementById('quizAnswers');
+            answersBox.innerHTML = '';
+            q.a.forEach((ans, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-right bg-darkBg border border-borderCol hover:border-solarGold p-3.5 rounded-xl text-sm text-slate-200 transition-all';
+                btn.textContent = ans;
+                btn.onclick = () => checkQuizAnswer(idx);
+                answersBox.appendChild(btn);
+            });
+            document.getElementById('quizNextBtn').classList.add('hidden');
+        }
+
+        function checkQuizAnswer(selectedIdx) {
+            const q = quizQuestions[quizState.current];
+            const buttons = document.querySelectorAll('#quizAnswers button');
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.correct) btn.className = 'w-full text-right bg-emerald-950/60 border border-emerald-500 p-3.5 rounded-xl text-sm text-emerald-300 font-bold';
+                else if (idx === selectedIdx) btn.className = 'w-full text-right bg-red-950/60 border border-red-500 p-3.5 rounded-xl text-sm text-red-300';
+            });
+            if (selectedIdx === q.correct) {
+                playBeep(800, 'sine', 0.2);
+                quizState.score += 10;
+                document.getElementById('quizScoreBadge').textContent = `النقاط: ${quizState.score}`;
+            }
+            document.getElementById('quizNextBtn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            quizState.current++;
+            loadQuiz();
+        }
+
+        function calcCitizenSolar() {
+            const checkboxes = document.querySelectorAll('.device-calc');
+            let totalWatts = 0;
+            checkboxes.forEach(cb => { if (cb.checked) totalWatts += parseFloat(cb.getAttribute('data-power')); });
+            const panelsNeeded = Math.ceil(totalWatts / 300);
+            const co2SavedKg = Math.round(totalWatts * 0.75);
+            document.getElementById('citizenTotalPower').textContent = totalWatts + ' W';
+            document.getElementById('citizenPanelsCount').textContent = panelsNeeded + ' ألواح';
+            document.getElementById('citizenCo2Saved').textContent = co2SavedKg + ' kg CO2 سنوياً';
+        }
+
+        /* ================= GAME 4: SOLAR TRIVIA RALLY ================= */
+        const rallyQuestions = [
+            { q: "ما هي وحدة قياس القدرة الكهربائية في النظام الدولي؟", options: ["الواط (Watt)", "الجول (Joule)", "الفولت (Volt)", "الأمبير (Ampere)"], answer: 0 },
+            { q: "أي من مصادر الطاقة التالية يُعد طاقة نظيفة ومتجددة؟", options: ["الفحم الحجري", "الطاقة الشمسية", "الغاز الطبيعي", "البترول"], answer: 1 },
+            { q: "ماذا يقصد بمفهوم 'المواطنة البيئية'؟", options: ["دفع الضرائب فقط", "المسؤولية الفردية والجماعية في حماية الموارد وترشيد الطاقة", "بناء المصانع الكبرى", "قطع الأشجار"], answer: 1 },
+            { q: "في صيغة القدرة الشمسية P = Pmax * cos(theta)، ماذا تمثل theta؟", options: ["زاوية سقوط الأشعة", "درجة حرارة اللوح", "ساعة الشروق", "سعة البطارية"], answer: 0 }
+        ];
+        let rallyState = { index: 0, score: 0, timer: 30, interval: null };
+
+        function startRallyGame() {
+            rallyState = { index: 0, score: 0, timer: 30, interval: null };
+            document.getElementById('rallyEndArea').classList.add('hidden');
+            document.getElementById('rallyGameArea').classList.remove('hidden');
+            document.getElementById('rallyScore').textContent = '0';
+            loadRallyQuestion();
+            if (rallyState.interval) clearInterval(rallyState.interval);
+            rallyState.interval = setInterval(() => {
+                rallyState.timer--;
+                document.getElementById('rallyTimer').textContent = rallyState.timer;
+                if (rallyState.timer <= 0) {
+                    clearInterval(rallyState.interval);
+                    endRallyGame();
+                }
+            }, 1000);
+        }
+
+        function loadRallyQuestion() {
+            if (rallyState.index >= rallyQuestions.length) {
+                clearInterval(rallyState.interval);
+                endRallyGame();
+                return;
+            }
+            const q = rallyQuestions[rallyState.index];
+            document.getElementById('rallyStepIndicator').textContent = `سؤال ${rallyState.index + 1} / ${rallyQuestions.length}`;
+            document.getElementById('rallyQuestionText').textContent = q.q;
+            const grid = document.getElementById('rallyOptionsGrid');
+            grid.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-darkBg hover:bg-slate-800 border border-borderCol p-3.5 rounded-xl text-sm font-semibold text-slate-200 transition-all text-center';
+                btn.textContent = opt;
+                btn.onclick = () => checkRallyAnswer(idx, q.answer);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkRallyAnswer(selected, correct) {
+            if (selected === correct) {
+                playBeep(880, 'sine', 0.15);
+                rallyState.score += 25;
+                document.getElementById('rallyScore').textContent = rallyState.score;
+            } else {
+                playBeep(250, 'sawtooth', 0.15);
+            }
+            rallyState.index++;
+            loadRallyQuestion();
+        }
+
+        function endRallyGame() {
+            document.getElementById('rallyGameArea').classList.add('hidden');
+            document.getElementById('rallyEndArea').classList.remove('hidden');
+            document.getElementById('rallyFinalMessage').textContent = `حققت مجموع نقاط ${rallyState.score} في رالي الطاقة الشمسية!`;
+        }
+
+        /* ================= GAME 5: CIRCUIT BUILDER (NEW) ================= */
+        const circuitSteps = [
+            { step: 1, title: "الخطوة 1: التقاط الأشعة الشمسية", question: "اختر المكون الفيزيائي الذي يمتص الفوتونات ويولّد تياراً مستمراً (DC):", correct: 0, options: ["ألواح شمسية كهروضوئية", "مكيف هواء", "عداد كهرباء عادي"] },
+            { step: 2, title: "الخطوة 2: تنسيق وحماية شحن البطارية", question: "اختر المكون الذي يمنع شحن البطارية المفرط ويضمن استقرار التيار:", correct: 1, options: ["مصباح LED", "منظم الشحن (Charge Controller)", "سخان مائي"] },
+            { step: 3, title: "الخطوة 3: تخزين الطاقة النظيفة", question: "اختر عنصر التخزين الكيميائي للطاقة لاستخدامها ليلاً:", correct: 0, options: ["بطارية الطاقة الشمسية", "مولد ديزل", "مقاومة كهربائية"] },
+            { step: 4, title: "الخطوة 4: تحويل التيار ليتناسب مع المنزل", question: "اختر الجهاز الفيزيائي لتحويل التيار المستمر (DC) إلى متناوب (AC):", correct: 2, options: ["مكثف كهربائي", "صمام ثنائي", "العاكس الكهرومغناطيسي (Inverter)"] },
+            { step: 5, title: "الخطوة 5: استهلاك الطاقة المستدامة", question: "اختر الوحدة المستهدفة بالتغذية النظيفة بدلاً من تلوث الشبكة التقليدية:", correct: 1, options: ["محطة فحم", "المنزل البيئي المستدام", "مصنع بلاستيك"] }
+        ];
+        let circuitCurrentStep = 0;
+
+        function loadCircuitStep() {
+            if (circuitCurrentStep >= circuitSteps.length) {
+                document.getElementById('circuitGameArea').classList.add('hidden');
+                document.getElementById('circuitVictoryArea').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('circuitGameArea').classList.remove('hidden');
+            document.getElementById('circuitVictoryArea').classList.add('hidden');
+
+            const current = circuitSteps[circuitCurrentStep];
+            document.getElementById('circQuestionText').textContent = `${current.title}: ${current.question}`;
+            const container = document.getElementById('circOptionsContainer');
+            container.innerHTML = '';
+
+            current.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-darkBg hover:bg-slate-800 border border-borderCol p-4 rounded-xl text-sm font-bold text-slate-200 transition-all text-center';
+                btn.textContent = opt;
+                btn.onclick = () => selectCircuitOption(idx, current.correct);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectCircuitOption(selected, correct) {
+            if (selected === correct) {
+                playBeep(750, 'sine', 0.15);
+                const stepEl = document.getElementById(`circStep${circuitCurrentStep + 1}`);
+                if (stepEl) {
+                    stepEl.className = 'flex flex-col items-center gap-1 p-3 rounded-lg border border-ecoGreen bg-emerald-950/40 text-ecoGreen font-bold min-w-[100px] shadow-lg';
+                }
+                circuitCurrentStep++;
+                loadCircuitStep();
+            } else {
+                playBeep(200, 'sawtooth', 0.2);
+                alert("خطأ في التوصيل الهندسي! تذكر ترتيب مكونات النظام الشمسي من التوليد إلى الاستهلاك.");
+            }
+        }
+
+        function resetCircuitGame() {
+            circuitCurrentStep = 0;
+            for (let i = 1; i <= 5; i++) {
+                const stepEl = document.getElementById(`circStep${i}`);
+                if (stepEl) stepEl.className = 'flex flex-col items-center gap-1 p-3 rounded-lg border border-dashed border-slate-700 min-w-[100px] text-slate-500';
+            }
+            loadCircuitStep();
+        }
+
+        /* ================= GAME 6: PANEL CLEAN RACE (NEW) ================= */
+        let effRaceState = { time: 20, clicks: 0, interval: null, active: false };
+
+        function startEfficiencyRace() {
+            effRaceState = { time: 20, clicks: 0, interval: null, active: true };
+            document.getElementById('effEndGameBox').classList.add('hidden');
+            document.getElementById('effInteractiveBox').classList.remove('hidden');
+            document.getElementById('effTimerText').textContent = '20s';
+            document.getElementById('effPowerOutput').textContent = '0 kWh';
+            document.getElementById('effCleanPct').textContent = '20%';
+            document.getElementById('effDustOverlay').classList.remove('hidden');
+            document.getElementById('effPanelIcon').className = 'fa-solid fa-solar-panel text-6xl text-slate-600';
+
+            if (effRaceState.interval) clearInterval(effRaceState.interval);
+            effRaceState.interval = setInterval(() => {
+                effRaceState.time--;
+                document.getElementById('effTimerText').textContent = effRaceState.time + 's';
+                if (effRaceState.time <= 0) {
+                    clearInterval(effRaceState.interval);
+                    endEfficiencyRace();
+                }
+            }, 1000);
+        }
+
+        function cleanPanelAction() {
+            if (!effRaceState.active) return;
+            playBeep(900, 'sine', 0.08);
+            effRaceState.clicks++;
+            const cleanPct = Math.min(100, 20 + effRaceState.clicks * 8);
+            const generatedPower = Math.round(effRaceState.clicks * 12.5);
+
+            document.getElementById('effCleanPct').textContent = cleanPct + '%';
+            document.getElementById('effPowerOutput').textContent = generatedPower + ' kWh';
+
+            if (cleanPct >= 80) {
+                document.getElementById('effDustOverlay').classList.add('hidden');
+                document.getElementById('effPanelIcon').className = 'fa-solid fa-solar-panel text-6xl text-solarGold';
+            }
+        }
+
+        function endEfficiencyRace() {
+            effRaceState.active = false;
+            document.getElementById('effInteractiveBox').classList.add('hidden');
+            document.getElementById('effEndGameBox').classList.remove('hidden');
+            const total = Math.round(effRaceState.clicks * 12.5);
+            document.getElementById('effFinalSummary').textContent = `جمعت ${total} kWh من الطاقة النظيفة عبر زيادة كفاءة الألواح ومسح الغبار بوعي مواطني عالي!`;
+        }
+
+        /* ================= GAME 7: AI SOLAR EXPERT Q&A ================= */
+        const aiKnowledgeBase = [
+            { keywords: ["كيف", "تعمل", "الألواح", "الشمسية"], answer: "تعتمد الألواح الشمسية على الخلايا الكهروضوئية المصنوعة من شبه موصلات (مثل السيليكون). عندما تسقط فوتونات الضوء على الخلية، تحرر إلكترونات وتولد تياراً كهربائياً مستمراً (DC)." },
+            { keywords: ["مواطنة", "علاقة", "طاقة", "بيئية"], answer: "المواطنة البيئية تعني أن كل فرد مسؤول عن ترشيد الاستهلاك وحماية الموارد للأجيال القادمة. الانتقال للطاقة الشمسية يعكس وعي المواطن بحماية مجتمعه ووطنه من التلوث." },
+            { keywords: ["زاوية", "إمالة", "أفضل", "الشمس"], answer: "أفضل زاوية إمالة للوح الشمسي هي تلك التي تجعل الأشعة متعامدة تماماً مع سطحه (زاوية سقوط تقترب من الصفر)، وغالباً ما تُعدل حسب خط عرض المنطقة لضمان التقاط أقصى إشعاع طوال العام." },
+            { keywords: ["تخزين", "بطارية", "بطاريات"], answer: "يتم تخزين الطاقة المولدة خلال النهار في بطاريات ذات سعة عالية (مثل بطاريات الليثيوم أو الجل) لاستخدامها ليلاً أو أثناء أوقات غياب الشمس وضمان استقرار الشبكة." }
+        ];
+
+        function askPreset(questionText) {
+            document.getElementById('aiQueryInput').value = questionText;
+            submitAiQuery();
+        }
+
+        function submitAiQuery() {
+            const input = document.getElementById('aiQueryInput').value.trim();
+            if (!input) return;
+            const loading = document.getElementById('aiLoadingIndicator');
+            const responseBox = document.getElementById('aiResponseContent');
+
+            loading.classList.remove('hidden');
+            responseBox.innerHTML = '';
+            playBeep(500, 'sine', 0.1);
+
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                let foundAnswer = "بناءً على قاعدة المعرفة الفيزيائية لمشروع الطاقة والمواطنة: الطاقة الشمسية هي الخيار الأنسب لتحقيق الاستدامة. يمكنك تجربة طرح أسئلة حول: (كيف تعمل الألواح، زاوية السقوط، أو علاقة الطاقة بالمواطنة).";
+                
+                const lowerInput = input.toLowerCase();
+                for (let item of aiKnowledgeBase) {
+                    if (item.keywords.some(kw => lowerInput.includes(kw))) {
+                        foundAnswer = item.answer;
+                        break;
+                    }
+                }
+
+                responseBox.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="text-xs text-solarGold font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> إجابة المساعد الذكي:</div>
+                        <p class="text-white text-base leading-relaxed">${foundAnswer}</p>
+                    </div>
+                `;
+                playBeep(700, 'sine', 0.15);
+            }, 600);
+        }
+
+        /* ================= INITIALIZATION ================= */
+        window.onload = function() {
+            loadG1Scenario();
+            drawPhysicsCanvas();
+            loadQuiz();
+            calcCitizenSolar();
+
+            window.addEventListener('resize', () => {
+                drawCityCanvas();
+                drawPhysicsCanvas();
+            });
+        };
+    </script>
+</body>
+</html>
